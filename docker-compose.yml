@@ -1,0 +1,33 @@
+version: '3.5'
+services:
+  mariadb:
+    image: mariadb:10.5
+    restart: always
+    container_name: mariadb
+    volumes:
+      - ~/docker/mariadb/data:/var/lib/mysql
+      - ~/docker/mariadb/log:/var/log/mysql
+      - ~/docker/mariadb/config:/etc/mysql/conf.d
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=cryptogen
+      - MYSQL_USER=user1
+      - MYSQL_PASSWORD=changepwd
+      - TZ=Asia/Seoul
+  was:
+    build: .
+    container_name: was
+    restart: on-failure
+    ports:
+      - 8080:8080
+    environment:
+      - DB_PORT=3306
+      - DB_NAME=cryptogen
+      - DB_HOST=mysql
+      - MYSQL_USER=user1
+      - MYSQL_USER_PASSWORD=changepwd
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - mariadb
